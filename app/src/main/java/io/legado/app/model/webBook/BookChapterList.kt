@@ -21,6 +21,7 @@ import io.legado.app.model.analyzeRule.AnalyzeRule.Companion.setCoroutineContext
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.utils.isTrue
 import io.legado.app.utils.mapAsync
+import io.legado.app.utils.parseTagTime
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.flow
 import org.mozilla.javascript.Context
@@ -155,7 +156,11 @@ object BookChapterList {
             .getDisplayTitle(replaceRules, book.getUseReplaceRule())
         if (book.totalChapterNum < list.size) {
             book.lastCheckCount = list.size - book.totalChapterNum
-            book.latestChapterTime = System.currentTimeMillis()
+            book.latestChapterTime = if (AppConfig.parseTagUpdateTime) {
+                getLatestChapterTimeFromTag(list, book.totalChapterNum) ?: System.currentTimeMillis()
+            } else {
+                System.currentTimeMillis()
+            }
         }
         book.lastCheckTime = System.currentTimeMillis()
         book.totalChapterNum = list.size
@@ -283,6 +288,26 @@ object BookChapterList {
                 }
             }
         }
+    }
+
+    private fun getLatestChapterTimeFromTag(
+        list: List<BookChapter>,
+        startIndex: Int = 0
+    ): Long? {
+        val start = startIndex.coerceIn(0, list.size)
+        if (start == list.size) return null
+
+        for (i in list.lastIndex downTo start) {
+            val chapter = list[i]
+            if (chapter.isVolume) continue
+
+            val time = chapter.tag?.parseTagTime()
+            if (time != null) {
+                return time
+            }
+        }
+
+        return null
     }
 
 }

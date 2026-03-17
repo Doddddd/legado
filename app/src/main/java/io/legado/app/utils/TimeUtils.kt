@@ -1,5 +1,11 @@
 package io.legado.app.utils
 
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.SignStyle
+import java.time.temporal.ChronoField
 import kotlin.math.abs
 
 fun Long.toTimeAgo(): String {
@@ -36,6 +42,48 @@ fun Long.toTimeAgo(): String {
         }
     }
     return start + end
+}
+
+private val TAG_TIMESTAMP_REGEX = Regex("""\b\d{10,13}\b""")
+private val TAG_DATETIME_REGEX = Regex("""\d{4}-\d{1,2}-\d{1,2}(\s+\d{1,2}:\d{1,2}(:\d{1,2})?)?""")
+
+private val FLEXIBLE_FORMATTER = DateTimeFormatterBuilder()
+    .appendValue(ChronoField.YEAR, 4)
+    .appendLiteral('-')
+    .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NOT_NEGATIVE)
+    .appendLiteral('-')
+    .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)
+    .optionalStart()
+        .appendLiteral(' ')
+        .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral(':')
+        .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NOT_NEGATIVE)
+        .optionalStart()
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE, 1, 2, SignStyle.NOT_NEGATIVE)
+        .optionalEnd()
+    .optionalEnd()
+    .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+    .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+    .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+    .toFormatter()
+
+fun String.parseTagTime(): Long? {
+    val text = trim()
+    if (text.isEmpty()) return null
+
+    TAG_TIMESTAMP_REGEX.find(text)?.value?.toLongOrNull()?.let { value ->
+        return if (value < 100_000_000_000L) value * 1000 else value
+    }
+
+    TAG_DATETIME_REGEX.find(text)?.value?.let { dateText ->
+        return runCatching {
+            val ldt = LocalDateTime.parse(dateText, FLEXIBLE_FORMATTER)
+            ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        }.getOrNull()
+    }
+
+    return null
 }
 
 fun Int.toDurationTime(): String {

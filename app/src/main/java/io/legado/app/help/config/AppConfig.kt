@@ -126,6 +126,12 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefBoolean(PreferKey.showLastUpdateTime, value)
         }
 
+    var parseTagUpdateTime: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.parseTagUpdateTime, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.parseTagUpdateTime, value)
+        }
+
     var showWaitUpCount: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.showWaitUpCount, false)
         set(value) {

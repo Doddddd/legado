@@ -143,6 +143,7 @@ object PreferKey {
     const val audioPlayWakeLock = "audioPlayWakeLock"
     const val readAloudWakeLock = "readAloudWakeLock"
     const val showLastUpdateTime = "showLastUpdateTime"
+    const val parseTagUpdateTime = "parseTagUpdateTime"
     const val showWaitUpCount = "showWaitUpCount"
     const val clearWebViewData = "clearWebViewData"
     const val onlyLatestBackup = "onlyLatestBackup"

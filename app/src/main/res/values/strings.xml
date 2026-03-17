@@ -1081,6 +1081,7 @@
     <string name="groups_or_source">Multi-group / book source</string>
     <string name="replace_state_change">Replace (enable / disable)</string>
     <string name="show_last_update_time">Show last updated time</string>
+    <string name="parse_tag_update_time">Update time from the chapter tag</string>
     <string name="refresh_list">Refresh list</string>
     <string name="tip_divider_color">Divider color</string>
     <string name="same_title_removed">Remove duplicate title</string>

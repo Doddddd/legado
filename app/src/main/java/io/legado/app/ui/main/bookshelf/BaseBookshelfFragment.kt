@@ -30,6 +30,7 @@ import io.legado.app.ui.main.MainFragmentInterface
 import io.legado.app.ui.main.MainViewModel
 import io.legado.app.ui.widget.dialog.WaitDialog
 import io.legado.app.utils.checkByIndex
+import io.legado.app.utils.gone
 import io.legado.app.utils.getCheckedIndex
 import io.legado.app.utils.isAbsUrl
 import io.legado.app.utils.postEvent
@@ -184,10 +185,16 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
                         spGroupStyle.setSelection(AppConfig.bookGroupStyle)
                         swShowUnread.isChecked = AppConfig.showUnread
                         swShowLastUpdateTime.isChecked = AppConfig.showLastUpdateTime
+                        swParseTagUpdateTime.isChecked = AppConfig.parseTagUpdateTime
                         swShowWaitUpBooks.isChecked = AppConfig.showWaitUpCount
                         swShowBookshelfFastScroller.isChecked = AppConfig.showBookshelfFastScroller
                         rgLayout.checkByIndex(bookshelfLayout)
                         rgSort.checkByIndex(bookshelfSort)
+                        swParseTagUpdateTime.gone(!swShowLastUpdateTime.isChecked)
+                        swShowLastUpdateTime.setOnCheckedChangeListener(null)
+                        swShowLastUpdateTime.setOnCheckedChangeListener { _, isChecked ->
+                            swParseTagUpdateTime.gone(!isChecked)
+                        }
                     }
             customView { alertBinding.root }
             okButton {
@@ -201,6 +208,9 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
                     if (AppConfig.showUnread != swShowUnread.isChecked) {
                         AppConfig.showUnread = swShowUnread.isChecked
                         postEvent(EventBus.BOOKSHELF_REFRESH, "")
+                    }
+                    if (AppConfig.parseTagUpdateTime != swParseTagUpdateTime.isChecked) {
+                        AppConfig.parseTagUpdateTime = swParseTagUpdateTime.isChecked
                     }
                     if (AppConfig.showLastUpdateTime != swShowLastUpdateTime.isChecked) {
                         AppConfig.showLastUpdateTime = swShowLastUpdateTime.isChecked
